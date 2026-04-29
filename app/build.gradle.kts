@@ -74,6 +74,9 @@ dependencies {
     // Biometric
     implementation(libs.androidx.biometric)
     
+    // Gson
+    implementation(libs.gson)
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

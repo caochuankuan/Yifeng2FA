@@ -18,11 +18,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.compose.yifeng2fa.data.TotpEntity
+import com.compose.yifeng2fa.utils.CryptoUtils
 import com.compose.yifeng2fa.utils.TotpUtils
 import com.compose.yifeng2fa.viewmodel.SortOrder
 import com.compose.yifeng2fa.viewmodel.TotpViewModel
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +43,83 @@ fun HomeScreen(
     val accounts by viewModel.accounts.collectAsState()
     val showCodes by viewModel.showCodes.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
+    var showExportPasswordDialog by remember { mutableStateOf(false) }
+    var showImportPasswordDialog by remember { mutableStateOf(false) }
+    var exportUri by remember { mutableStateOf<Uri?>(null) }
+    var importUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json")
+    ) { uri ->
+        if (uri != null) {
+            exportUri = uri
+            showExportPasswordDialog = true
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            importUri = uri
+            showImportPasswordDialog = true
+        }
+    }
+
+    if (showExportPasswordDialog) {
+        PasswordDialog(
+            title = "Export Password",
+            onConfirm = { password ->
+                showExportPasswordDialog = false
+                coroutineScope.launch {
+                    try {
+                        val json = Gson().toJson(accounts)
+                        val encrypted = CryptoUtils.encrypt(json, password)
+                        exportUri?.let { uri ->
+                            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                                outputStream.write(encrypted.toByteArray())
+                            }
+                        }
+                        Toast.makeText(context, "Export successful", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            },
+            onDismiss = { showExportPasswordDialog = false }
+        )
+    }
+
+    if (showImportPasswordDialog) {
+        PasswordDialog(
+            title = "Import Password",
+            onConfirm = { password ->
+                showImportPasswordDialog = false
+                coroutineScope.launch {
+                    try {
+                        var encrypted = ""
+                        importUri?.let { uri ->
+                            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                                encrypted = inputStream.bufferedReader().use { it.readText() }
+                            }
+                        }
+                        val decryptedJson = CryptoUtils.decrypt(encrypted, password)
+                        val type = object : TypeToken<List<TotpEntity>>() {}.type
+                        val importedAccounts: List<TotpEntity> = Gson().fromJson(decryptedJson, type)
+                        viewModel.importAccounts(importedAccounts)
+                        Toast.makeText(context, "Import successful", Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(context, "Import failed: Check password or file", Toast.LENGTH_LONG).show()
+                    }
+                }
+            },
+            onDismiss = { showImportPasswordDialog = false }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -73,6 +157,21 @@ fun HomeScreen(
                             text = { Text("Sort by Issuer") },
                             onClick = {
                                 viewModel.setSortOrder(SortOrder.ISSUER_ASC)
+                                showMenu = false
+                            }
+                        )
+                        Divider()
+                        DropdownMenuItem(
+                            text = { Text("Export Data") },
+                            onClick = {
+                                exportLauncher.launch("2fa_backup.json")
+                                showMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Import Data") },
+                            onClick = {
+                                importLauncher.launch(arrayOf("*/*"))
                                 showMenu = false
                             }
                         )

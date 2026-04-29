@@ -66,4 +66,12 @@ class TotpViewModel(application: Application) : AndroidViewModel(application) {
             dao.delete(entity)
         }
     }
+
+    fun importAccounts(importedAccounts: List<TotpEntity>) {
+        viewModelScope.launch {
+            importedAccounts.forEach { account ->
+                dao.insert(account.copy(id = 0)) // Ensure new IDs are generated
+            }
+        }
+    }
 }
