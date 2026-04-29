@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import android.widget.Toast
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +56,40 @@ fun ScanScreen(
         }
     )
 
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            if (uri != null) {
+                try {
+                    val image = InputImage.fromFilePath(context, uri)
+                    val options = BarcodeScannerOptions.Builder()
+                        .setBarcodeFormats(Barcode.FORMAT_QR_CODE)
+                        .build()
+                    val scanner = BarcodeScanning.getClient(options)
+                    scanner.process(image)
+                        .addOnSuccessListener { barcodes ->
+                            if (barcodes.isNotEmpty()) {
+                                val rawValue = barcodes[0].rawValue
+                                if (rawValue != null) {
+                                    onScanResult(rawValue)
+                                } else {
+                                    Toast.makeText(context, "未找到二维码", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                Toast.makeText(context, "未找到二维码", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        .addOnFailureListener {
+                            Toast.makeText(context, "扫描图片失败", Toast.LENGTH_SHORT).show()
+                        }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(context, "处理图片出错", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    )
+
     LaunchedEffect(Unit) {
         if (!hasCameraPermission) {
             permissionLauncher.launch(Manifest.permission.CAMERA)
@@ -67,6 +103,11 @@ fun ScanScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { galleryLauncher.launch("image/*") }) {
+                        Icon(Icons.Default.PhotoLibrary, contentDescription = "Choose from gallery")
                     }
                 }
             )
