@@ -60,19 +60,19 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     
     // CameraX and ML Kit
-    val camerax_version = "1.3.3"
-    implementation("androidx.camera:camera-core:${camerax_version}")
-    implementation("androidx.camera:camera-camera2:${camerax_version}")
-    implementation("androidx.camera:camera-lifecycle:${camerax_version}")
-    implementation("androidx.camera:camera-view:${camerax_version}")
-    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.mlkit.barcode.scanning)
+    implementation(libs.guava)
     
     // Base32 decoding
     implementation(libs.commons.codec)
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.3")
+    implementation(libs.androidx.navigation.compose)
     // Biometric
-    implementation("androidx.biometric:biometric:1.2.0-alpha05")
+    implementation(libs.androidx.biometric)
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
