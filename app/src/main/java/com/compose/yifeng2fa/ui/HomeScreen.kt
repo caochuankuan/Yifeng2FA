@@ -206,11 +206,11 @@ fun HomeScreen(
                     showCode = showCodes,
                     onDelete = { viewModel.deleteAccount(account) },
                     onClick = {
-                        val fragmentActivity = context as? androidx.fragment.app.FragmentActivity
-                        if (fragmentActivity != null) {
+                        val activity = context as? androidx.fragment.app.FragmentActivity
+                        if (activity != null) {
                             val executor = androidx.core.content.ContextCompat.getMainExecutor(context)
                             val biometricPrompt = androidx.biometric.BiometricPrompt(
-                                fragmentActivity,
+                                activity,
                                 executor,
                                 object : androidx.biometric.BiometricPrompt.AuthenticationCallback() {
                                     override fun onAuthenticationSucceeded(result: androidx.biometric.BiometricPrompt.AuthenticationResult) {

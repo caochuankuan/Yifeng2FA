@@ -2,7 +2,7 @@ package com.compose.yifeng2fa
 
 import android.R.attr.type
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +24,7 @@ import com.compose.yifeng2fa.ui.Screen
 import com.compose.yifeng2fa.ui.theme.Yifeng2FATheme
 import com.compose.yifeng2fa.viewmodel.TotpViewModel
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
