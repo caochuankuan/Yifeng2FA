@@ -286,13 +286,13 @@ fun TotpCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = if (showCode) {
-                        if (currentCode.length == 6) {
-                            "${currentCode.substring(0, 3)} ${currentCode.substring(3)}"
-                        } else {
-                            currentCode
+                        when (currentCode.length) {
+                            6 -> "${currentCode.substring(0, 3)} ${currentCode.substring(3)}"
+                            8 -> "${currentCode.substring(0, 4)} ${currentCode.substring(4)}"
+                            else -> currentCode
                         }
                     } else {
-                        "••• •••"
+                        if (currentCode.length == 8) "•••• ••••" else "••• •••"
                     },
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,

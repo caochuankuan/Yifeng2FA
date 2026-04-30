@@ -101,10 +101,10 @@ fun ItemDetailScreen(
                                 strokeWidth = 8.dp
                             )
                             Text(
-                                text = if (currentCode.length == 6) {
-                                    "${currentCode.substring(0, 3)}\n${currentCode.substring(3)}"
-                                } else {
-                                    currentCode
+                                text = when (currentCode.length) {
+                                    6 -> "${currentCode.substring(0, 3)}\n${currentCode.substring(3)}"
+                                    8 -> "${currentCode.substring(0, 4)}\n${currentCode.substring(4)}"
+                                    else -> currentCode
                                 },
                                 style = MaterialTheme.typography.displayMedium.copy(
                                     fontWeight = FontWeight.Bold,
