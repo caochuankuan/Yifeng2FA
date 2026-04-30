@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -30,7 +31,8 @@ fun ItemDetailScreen(
     
     var currentCode by remember { mutableStateOf("") }
     var progress by remember { mutableStateOf(0f) }
-    
+    var showEditDialog by remember { mutableStateOf(false) }
+
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
@@ -48,6 +50,17 @@ fun ItemDetailScreen(
         }
     }
 
+    if (showEditDialog && account != null) {
+        EditAccountDialog(
+            account = account!!,
+            onDismiss = { showEditDialog = false },
+            onConfirm = { updatedAccount ->
+                viewModel.updateAccount(updatedAccount)
+                showEditDialog = false
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -55,6 +68,11 @@ fun ItemDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showEditDialog = true }) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
                     }
                 }
             )

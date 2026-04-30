@@ -83,6 +83,12 @@ class TotpViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateAccount(entity: TotpEntity) {
+        viewModelScope.launch {
+            dao.update(entity)
+        }
+    }
+
     fun importAccounts(importedAccounts: List<TotpEntity>) {
         viewModelScope.launch {
             importedAccounts.forEach { account ->
