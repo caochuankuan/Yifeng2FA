@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -25,6 +27,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -50,7 +53,8 @@ import com.compose.yifeng2fa.viewmodel.PasswordViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StrongPasswordScreen(
-    viewModel: PasswordViewModel = viewModel()
+    viewModel: PasswordViewModel = viewModel(),
+    onNavigateToHistory: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -70,6 +74,14 @@ fun StrongPasswordScreen(
         topBar = {
             TopAppBar(
                 title = { Text("强密码创建") },
+                actions = {
+                    IconButton(onClick = onNavigateToHistory) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = "历史记录"
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
@@ -154,6 +166,16 @@ fun StrongPasswordScreen(
             Button(
                 onClick = {
                     generatedPassword = viewModel.generateStrongPassword(
+                        keyword1 = keyword1,
+                        keyword2 = keyword2,
+                        length = length.toInt(),
+                        useUppercase = useUppercase,
+                        useLowercase = useLowercase,
+                        useNumbers = useNumbers,
+                        useSymbols = useSymbols
+                    )
+                    viewModel.addStrongPasswordHistory(
+                        password = generatedPassword,
                         keyword1 = keyword1,
                         keyword2 = keyword2,
                         length = length.toInt(),

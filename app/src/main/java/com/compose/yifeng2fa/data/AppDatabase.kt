@@ -25,10 +25,30 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     }
 }
 
-@Database(entities = [TotpEntity::class, PasswordEntity::class], version = 2, exportSchema = false)
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """CREATE TABLE IF NOT EXISTS strong_password_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                password TEXT NOT NULL,
+                keyword1 TEXT NOT NULL DEFAULT '',
+                keyword2 TEXT NOT NULL DEFAULT '',
+                length INTEGER NOT NULL DEFAULT 16,
+                useUppercase INTEGER NOT NULL DEFAULT 1,
+                useLowercase INTEGER NOT NULL DEFAULT 1,
+                useNumbers INTEGER NOT NULL DEFAULT 1,
+                useSymbols INTEGER NOT NULL DEFAULT 0,
+                createdAt INTEGER NOT NULL DEFAULT 0
+            )"""
+        )
+    }
+}
+
+@Database(entities = [TotpEntity::class, PasswordEntity::class, StrongPasswordHistoryEntity::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun totpDao(): TotpDao
     abstract fun passwordDao(): PasswordDao
+    abstract fun strongPasswordHistoryDao(): StrongPasswordHistoryDao
 
     companion object {
         @Volatile
@@ -41,7 +61,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "yifeng_2fa_database"
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance

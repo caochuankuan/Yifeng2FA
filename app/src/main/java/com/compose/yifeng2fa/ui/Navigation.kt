@@ -25,6 +25,7 @@ sealed class Screen(val route: String) {
         fun createRoute(id: Long) = "edit_password/$id"
     }
     object StrongPassword : Screen("strong_password")
+    object StrongPasswordHistory : Screen("strong_password_history")
 }
 
 sealed class BottomNavItem(

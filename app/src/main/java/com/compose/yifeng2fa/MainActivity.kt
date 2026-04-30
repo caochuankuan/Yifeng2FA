@@ -33,6 +33,7 @@ import com.compose.yifeng2fa.ui.AddPasswordScreen
 import com.compose.yifeng2fa.ui.PasswordDetailScreen
 import com.compose.yifeng2fa.ui.EditPasswordScreen
 import com.compose.yifeng2fa.ui.StrongPasswordScreen
+import com.compose.yifeng2fa.ui.StrongPasswordHistoryScreen
 import com.compose.yifeng2fa.ui.Screen
 import com.compose.yifeng2fa.ui.bottomNavItems
 import com.compose.yifeng2fa.ui.theme.Yifeng2FATheme
@@ -146,7 +147,15 @@ class MainActivity : FragmentActivity() {
                             }
 
                             composable(Screen.StrongPassword.route) {
-                                StrongPasswordScreen()
+                                StrongPasswordScreen(
+                                    onNavigateToHistory = { navController.navigate(Screen.StrongPasswordHistory.route) }
+                                )
+                            }
+
+                            composable(Screen.StrongPasswordHistory.route) {
+                                StrongPasswordHistoryScreen(
+                                    onBack = { navController.popBackStack() }
+                                )
                             }
 
                             composable(Screen.Scan.route) {

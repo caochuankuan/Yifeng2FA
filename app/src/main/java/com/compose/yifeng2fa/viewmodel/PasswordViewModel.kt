@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.yifeng2fa.data.AppDatabase
 import com.compose.yifeng2fa.data.PasswordEntity
+import com.compose.yifeng2fa.data.StrongPasswordHistoryEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -13,6 +14,7 @@ import kotlinx.coroutines.launch
 
 class PasswordViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).passwordDao()
+    private val historyDao = AppDatabase.getDatabase(application).strongPasswordHistoryDao()
     private val prefs = application.getSharedPreferences("yifeng2fa_settings", Context.MODE_PRIVATE)
 
     private val _accounts = MutableStateFlow<List<PasswordEntity>>(emptyList())
@@ -23,6 +25,9 @@ class PasswordViewModel(application: Application) : AndroidViewModel(application
 
     private val _showPassword = MutableStateFlow(prefs.getBoolean("password_show_password", true))
     val showPassword: StateFlow<Boolean> = _showPassword
+
+    private val _strongPasswordHistory = MutableStateFlow<List<StrongPasswordHistoryEntity>>(emptyList())
+    val strongPasswordHistory: StateFlow<List<StrongPasswordHistoryEntity>> = _strongPasswordHistory
 
     init {
         viewModelScope.launch {
@@ -36,6 +41,11 @@ class PasswordViewModel(application: Application) : AndroidViewModel(application
                         _accounts.value = it
                     }
                 }
+            }
+        }
+        viewModelScope.launch {
+            historyDao.getAll().collectLatest {
+                _strongPasswordHistory.value = it
             }
         }
     }
@@ -100,6 +110,39 @@ class PasswordViewModel(application: Application) : AndroidViewModel(application
             importedAccounts.forEach { account ->
                 dao.insert(account.copy(id = 0))
             }
+        }
+    }
+
+    fun addStrongPasswordHistory(
+        password: String,
+        keyword1: String,
+        keyword2: String,
+        length: Int,
+        useUppercase: Boolean,
+        useLowercase: Boolean,
+        useNumbers: Boolean,
+        useSymbols: Boolean
+    ) {
+        viewModelScope.launch {
+            historyDao.insert(
+                StrongPasswordHistoryEntity(
+                    password = password,
+                    keyword1 = keyword1,
+                    keyword2 = keyword2,
+                    length = length,
+                    useUppercase = useUppercase,
+                    useLowercase = useLowercase,
+                    useNumbers = useNumbers,
+                    useSymbols = useSymbols,
+                    createdAt = System.currentTimeMillis()
+                )
+            )
+        }
+    }
+
+    fun deleteStrongPasswordHistoryByIds(ids: List<Long>) {
+        viewModelScope.launch {
+            historyDao.deleteByIds(ids)
         }
     }
 
