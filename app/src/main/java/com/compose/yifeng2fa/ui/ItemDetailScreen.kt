@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.compose.yifeng2fa.utils.TotpUtils
 import com.compose.yifeng2fa.viewmodel.TotpViewModel
 import kotlinx.coroutines.delay
+import androidx.compose.ui.platform.LocalLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -213,7 +214,7 @@ fun ItemDetailScreen(
 
                         // Added Time
                         Text(
-                            text = "Added: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(account!!.addedAt))}",
+                            text = "Added: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", LocalLocale.current.platformLocale).format(java.util.Date(account!!.addedAt))}",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
