@@ -106,10 +106,16 @@ fun ItemDetailScreen(
                                     8 -> "${currentCode.substring(0, 4)}\n${currentCode.substring(4)}"
                                     else -> currentCode
                                 },
-                                style = MaterialTheme.typography.displayMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 4.sp
-                                ),
+                                style = when (currentCode.length) {
+                                    8 -> MaterialTheme.typography.displaySmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 4.sp
+                                    )
+                                    else -> MaterialTheme.typography.displayMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 4.sp
+                                    )
+                                },
                                 color = MaterialTheme.colorScheme.onSurface,
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
@@ -121,6 +127,7 @@ fun ItemDetailScreen(
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
+                        // Secret Key
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -141,6 +148,57 @@ fun ItemDetailScreen(
                                 Icon(Icons.Default.ContentCopy, contentDescription = "Copy Secret")
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Algorithm
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text("Algorithm", style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    text = account!!.algorithm,
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Digits & Period
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Digits", style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    text = account!!.digits.toString(),
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("Period", style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    text = "${account!!.period}s",
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Added Time
+                        Text(
+                            text = "Added: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault()).format(java.util.Date(account!!.addedAt))}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             } else {
