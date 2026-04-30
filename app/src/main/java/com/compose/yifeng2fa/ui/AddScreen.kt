@@ -140,7 +140,7 @@ fun AddScreen(
                 ExposedDropdownMenu(
                     expanded = expandedAlgorithm,
                     onDismissRequest = { expandedAlgorithm = false },
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    containerColor = MaterialTheme.colorScheme.surface
                 ) {
                     algorithms.forEach { option ->
                         DropdownMenuItem(
@@ -178,7 +178,7 @@ fun AddScreen(
                 ExposedDropdownMenu(
                     expanded = expandedDigits,
                     onDismissRequest = { expandedDigits = false },
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    containerColor = MaterialTheme.colorScheme.surface
                 ) {
                     digitsOptions.forEach { option ->
                         DropdownMenuItem(
@@ -216,7 +216,7 @@ fun AddScreen(
                 ExposedDropdownMenu(
                     expanded = expandedPeriod,
                     onDismissRequest = { expandedPeriod = false },
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    containerColor = MaterialTheme.colorScheme.surface
                 ) {
                     periodOptions.forEach { option ->
                         DropdownMenuItem(
