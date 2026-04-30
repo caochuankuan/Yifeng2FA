@@ -47,7 +47,14 @@ fun ScanResultScreen(
                 
                 Button(
                     onClick = {
-                        viewModel.addAccount(totpData.issuer, totpData.accountName, totpData.secret)
+                        viewModel.addAccount(
+                            issuer = totpData.issuer,
+                            accountName = totpData.accountName,
+                            secret = totpData.secret,
+                            algorithm = totpData.algorithm,
+                            digits = totpData.digits,
+                            period = totpData.period
+                        )
                         onBack()
                     },
                     modifier = Modifier.fillMaxWidth()

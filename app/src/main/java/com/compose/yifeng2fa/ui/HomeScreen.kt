@@ -248,10 +248,15 @@ fun TotpCard(
     var currentCode by remember { mutableStateOf("") }
     var progress by remember { mutableStateOf(0f) }
 
-    LaunchedEffect(account.secret) {
+    LaunchedEffect(account.secret, account.algorithm, account.digits, account.period) {
         while (true) {
-            currentCode = TotpUtils.generateTotp(account.secret)
-            progress = TotpUtils.getProgress()
+            currentCode = TotpUtils.generateTotp(
+                secret = account.secret,
+                algorithm = account.algorithm,
+                digits = account.digits,
+                period = account.period
+            )
+            progress = TotpUtils.getProgress(period = account.period)
             delay(100L)
         }
     }

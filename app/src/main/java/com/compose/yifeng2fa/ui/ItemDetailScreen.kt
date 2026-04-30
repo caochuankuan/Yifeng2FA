@@ -34,11 +34,16 @@ fun ItemDetailScreen(
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
-    LaunchedEffect(account?.secret) {
-        val secret = account?.secret ?: return@LaunchedEffect
+    LaunchedEffect(account?.secret, account?.algorithm, account?.digits, account?.period) {
+        val acc = account ?: return@LaunchedEffect
         while (true) {
-            currentCode = TotpUtils.generateTotp(secret)
-            progress = TotpUtils.getProgress()
+            currentCode = TotpUtils.generateTotp(
+                secret = acc.secret,
+                algorithm = acc.algorithm,
+                digits = acc.digits,
+                period = acc.period
+            )
+            progress = TotpUtils.getProgress(period = acc.period)
             delay(100L)
         }
     }

@@ -55,9 +55,25 @@ class TotpViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getAccountById(id: Long) = dao.getById(id)
 
-    fun addAccount(issuer: String, accountName: String, secret: String) {
+    fun addAccount(
+        issuer: String,
+        accountName: String,
+        secret: String,
+        algorithm: String = "SHA1",
+        digits: Int = 6,
+        period: Int = 30
+    ) {
         viewModelScope.launch {
-            dao.insert(TotpEntity(issuer = issuer, accountName = accountName, secret = secret.uppercase().replace(" ", "")))
+            dao.insert(
+                TotpEntity(
+                    issuer = issuer,
+                    accountName = accountName,
+                    secret = secret.uppercase().replace(" ", ""),
+                    algorithm = algorithm,
+                    digits = digits,
+                    period = period
+                )
+            )
         }
     }
 
