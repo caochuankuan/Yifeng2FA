@@ -102,4 +102,101 @@ class PasswordViewModel(application: Application) : AndroidViewModel(application
             }
         }
     }
+
+    fun generateStrongPassword(
+        keyword1: String,
+        keyword2: String,
+        length: Int,
+        useUppercase: Boolean,
+        useLowercase: Boolean,
+        useNumbers: Boolean,
+        useSymbols: Boolean
+    ): String {
+        val charPool = buildString {
+            if (useLowercase) append("abcdefghijklmnopqrstuvwxyz")
+            if (useUppercase) append("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+            if (useNumbers) append("0123456789")
+            if (useSymbols) append("!@#$%&*")
+        }
+
+        if (charPool.isEmpty()) return ""
+
+        val random = java.security.SecureRandom()
+
+        val kw1 = keyword1.trim()
+        val kw2 = keyword2.trim()
+        val keywords = listOf(kw1, kw2).filter { it.isNotEmpty() }
+        val keywordsLength = keywords.sumOf { it.length }
+
+        val minSeparators = if (keywords.size > 1) keywords.size - 1 else 0
+        val totalLength = maxOf(length, keywordsLength + minSeparators)
+
+        val passwordChars = CharArray(totalLength) { charPool[random.nextInt(charPool.length)] }
+
+        val keywordIndices = mutableSetOf<Int>()
+        if (keywords.isNotEmpty()) {
+            val availableSlots = (0 until totalLength).toMutableList()
+
+            keywords.forEach { word ->
+                val wordLen = word.length
+                val maxStart = availableSlots.size - wordLen
+                if (maxStart >= 0) {
+                    val slotIndex = random.nextInt(maxStart + 1)
+                    val startPos = availableSlots[slotIndex]
+
+                    for (i in word.indices) {
+                        val pos = startPos + i
+                        passwordChars[pos] = word[i]
+                        keywordIndices.add(pos)
+                    }
+
+                    for (i in 0 until wordLen) {
+                        availableSlots.remove(startPos + i)
+                    }
+                }
+            }
+        }
+
+        val requiredChars = mutableListOf<Char>()
+        if (useLowercase) {
+            val lowers = "abcdefghijklmnopqrstuvwxyz".toList()
+            requiredChars.add(lowers[random.nextInt(lowers.size)])
+        }
+        if (useUppercase) {
+            val uppers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toList()
+            requiredChars.add(uppers[random.nextInt(uppers.size)])
+        }
+        if (useNumbers) {
+            val nums = "0123456789".toList()
+            requiredChars.add(nums[random.nextInt(nums.size)])
+        }
+        if (useSymbols) {
+            val syms = "!@#$%&*".toList()
+            requiredChars.add(syms[random.nextInt(syms.size)])
+        }
+
+        val nonKeywordIndices = mutableListOf<Int>()
+        for (i in passwordChars.indices) {
+            if (i !in keywordIndices) {
+                nonKeywordIndices.add(i)
+            }
+        }
+
+        requiredChars.forEachIndexed { index, char ->
+            if (index < nonKeywordIndices.size) {
+                passwordChars[nonKeywordIndices[index]] = char
+            }
+        }
+
+        for (i in nonKeywordIndices.size - 1 downTo 1) {
+            val j = random.nextInt(i + 1)
+            val idxI = nonKeywordIndices[i]
+            val idxJ = nonKeywordIndices[j]
+            val temp = passwordChars[idxI]
+            passwordChars[idxI] = passwordChars[idxJ]
+            passwordChars[idxJ] = temp
+        }
+
+        return String(passwordChars)
+    }
 }

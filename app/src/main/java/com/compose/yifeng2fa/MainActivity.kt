@@ -32,7 +32,7 @@ import com.compose.yifeng2fa.ui.PasswordScreen
 import com.compose.yifeng2fa.ui.AddPasswordScreen
 import com.compose.yifeng2fa.ui.PasswordDetailScreen
 import com.compose.yifeng2fa.ui.EditPasswordScreen
-import com.compose.yifeng2fa.ui.SettingsPlaceholderScreen
+import com.compose.yifeng2fa.ui.StrongPasswordScreen
 import com.compose.yifeng2fa.ui.Screen
 import com.compose.yifeng2fa.ui.bottomNavItems
 import com.compose.yifeng2fa.ui.theme.Yifeng2FATheme
@@ -145,8 +145,8 @@ class MainActivity : FragmentActivity() {
                                 )
                             }
 
-                            composable(Screen.Settings.route) {
-                                SettingsPlaceholderScreen()
+                            composable(Screen.StrongPassword.route) {
+                                StrongPasswordScreen()
                             }
 
                             composable(Screen.Scan.route) {

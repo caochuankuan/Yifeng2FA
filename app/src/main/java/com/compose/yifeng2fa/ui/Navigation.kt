@@ -3,7 +3,7 @@ package com.compose.yifeng2fa.ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Password
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Screen(val route: String) {
@@ -24,7 +24,7 @@ sealed class Screen(val route: String) {
     object EditPassword : Screen("edit_password/{id}") {
         fun createRoute(id: Long) = "edit_password/$id"
     }
-    object Settings : Screen("settings")
+    object StrongPassword : Screen("strong_password")
 }
 
 sealed class BottomNavItem(
@@ -34,11 +34,11 @@ sealed class BottomNavItem(
 ) {
     object Home : BottomNavItem(Screen.Home.route, "首页", Icons.Default.Home)
     object Passwords : BottomNavItem(Screen.Passwords.route, "密码", Icons.Default.Lock)
-    object Settings : BottomNavItem(Screen.Settings.route, "设置", Icons.Default.Settings)
+    object StrongPassword : BottomNavItem(Screen.StrongPassword.route, "强密码创建", Icons.Default.Password)
 }
 
 val bottomNavItems = listOf(
     BottomNavItem.Home,
     BottomNavItem.Passwords,
-    BottomNavItem.Settings
+    BottomNavItem.StrongPassword
 )
