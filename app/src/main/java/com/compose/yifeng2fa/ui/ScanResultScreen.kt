@@ -32,10 +32,10 @@ fun ScanResultScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Scan Result") },
+                title = { Text("扫描结果") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -74,12 +74,12 @@ fun ScanResultScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
-                    text = "QR Code Scanned",
+                    text = "二维码已扫描",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Review the account details below and save it.",
+                    text = "请检查以下账户详情并保存。",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -167,12 +167,12 @@ fun ScanResultScreen(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "Invalid QR Code",
+                    "无效的二维码",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.error
                 )
                 Text(
-                    "The scanned QR code does not contain a valid otpauth URI.",
+                    "扫描的二维码不包含有效的 otpauth URI。",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -184,7 +184,7 @@ fun ScanResultScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Go Back")
+                    Text("返回")
                 }
                 Spacer(modifier = Modifier.weight(1f))
             }

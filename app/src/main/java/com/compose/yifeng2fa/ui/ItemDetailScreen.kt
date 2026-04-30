@@ -87,15 +87,15 @@ fun ItemDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Account Details") },
+                title = { Text("账户详情") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
                     }
                 },
                 actions = {
                     IconButton(onClick = { showEditDialog = true }) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                        Icon(Icons.Default.Edit, contentDescription = "编辑")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -114,7 +114,7 @@ fun ItemDetailScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (account != null) {
-                val issuerName = account!!.issuer.ifEmpty { "Unknown" }
+                val issuerName = account!!.issuer.ifEmpty { "未知" }
                 val color = issuerColor(issuerName)
 
                 // Issuer Icon
@@ -205,7 +205,7 @@ fun ItemDetailScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            text = "${(progress * account!!.period).toInt()}s remaining",
+                            text = "剩余 ${(progress * account!!.period).toInt()} 秒",
                             style = MaterialTheme.typography.bodyMedium,
                             color = if (progress < 0.15f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -231,30 +231,30 @@ fun ItemDetailScreen(
                     ) {
                         // Secret Key
                         DetailRow(
-                            label = "Secret Key",
+                            label = "密钥",
                             value = account!!.secret,
                             onCopy = {
                                 clipboardManager.setText(AnnotatedString(account!!.secret))
-                                Toast.makeText(context, "Secret copied", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "密钥已复制", Toast.LENGTH_SHORT).show()
                             }
                         )
 
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
                         // Algorithm
-                        DetailItem(label = "Algorithm", value = account!!.algorithm)
+                        DetailItem(label = "算法", value = account!!.algorithm)
 
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
                         Row(modifier = Modifier.fillMaxWidth()) {
                             DetailItem(
-                                label = "Digits",
+                                label = "位数",
                                 value = account!!.digits.toString(),
                                 modifier = Modifier.weight(1f)
                             )
                             DetailItem(
-                                label = "Period",
-                                value = "${account!!.period}s",
+                                label = "周期",
+                                value = "${account!!.period}秒",
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -264,7 +264,7 @@ fun ItemDetailScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Added on ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(account!!.addedAt))}",
+                    text = "添加于 ${SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(account!!.addedAt))}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -306,7 +306,7 @@ private fun DetailRow(
         IconButton(onClick = onCopy) {
             Icon(
                 Icons.Default.ContentCopy,
-                contentDescription = "Copy $label",
+                contentDescription = "复制 $label",
                 tint = MaterialTheme.colorScheme.primary
             )
         }

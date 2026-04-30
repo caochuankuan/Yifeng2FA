@@ -33,7 +33,7 @@ fun PasswordDialog(
         text = {
             Column {
                 Text(
-                    "Enter a password to encrypt or decrypt your backup file.",
+                    "输入密码以加密或解密您的备份文件。",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -41,7 +41,7 @@ fun PasswordDialog(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password") },
+                    label = { Text("密码") },
                     visualTransformation = PasswordVisualTransformation(),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
@@ -63,12 +63,12 @@ fun PasswordDialog(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             ) {
-                Text("Confirm")
+                Text("确认")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("取消")
             }
         },
         shape = RoundedCornerShape(24.dp),

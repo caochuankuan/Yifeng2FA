@@ -198,7 +198,7 @@ fun ScanScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Align QR code within frame",
+                        text = "将二维码对准框内",
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.Medium,
                             color = Color.White
@@ -236,7 +236,7 @@ fun ScanScreen(
                     ) {
                         Icon(
                             Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = "关闭",
                             modifier = Modifier.size(28.dp)
                         )
                     }
@@ -253,7 +253,7 @@ fun ScanScreen(
                     ) {
                         Icon(
                             Icons.Default.PhotoLibrary,
-                            contentDescription = "Choose from gallery",
+                            contentDescription = "从相册选择",
                             modifier = Modifier.size(28.dp)
                         )
                     }
@@ -268,14 +268,14 @@ fun ScanScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    "Camera Permission Required",
+                    "需要相机权限",
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    "Please grant camera permission to scan QR codes.",
+                    "请授予相机权限以扫描二维码。",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -285,7 +285,7 @@ fun ScanScreen(
                     onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Grant Permission")
+                    Text("授予权限")
                 }
             }
         }

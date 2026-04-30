@@ -36,7 +36,7 @@ fun EditAccountDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                "Edit Account",
+                "编辑账户",
                 style = MaterialTheme.typography.headlineSmall
             )
         },
@@ -50,7 +50,7 @@ fun EditAccountDialog(
                 OutlinedTextField(
                     value = issuer,
                     onValueChange = { issuer = it },
-                    label = { Text("Issuer") },
+                    label = { Text("服务商") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -62,7 +62,7 @@ fun EditAccountDialog(
                 OutlinedTextField(
                     value = accountName,
                     onValueChange = { accountName = it },
-                    label = { Text("Account Name") },
+                    label = { Text("账户名称") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -74,7 +74,7 @@ fun EditAccountDialog(
                 OutlinedTextField(
                     value = secret,
                     onValueChange = { secret = it },
-                    label = { Text("Secret Key") },
+                    label = { Text("密钥") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -94,7 +94,7 @@ fun EditAccountDialog(
                         value = algorithm,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Algorithm") },
+                        label = { Text("算法") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAlgorithm) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -132,7 +132,7 @@ fun EditAccountDialog(
                         value = digits,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Digits") },
+                        label = { Text("位数") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDigits) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -167,10 +167,10 @@ fun EditAccountDialog(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = "$period seconds",
+                        value = "$period 秒",
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Period") },
+                        label = { Text("周期") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPeriod) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -188,7 +188,7 @@ fun EditAccountDialog(
                     ) {
                         periodOptions.forEach { option ->
                             DropdownMenuItem(
-                                text = { Text("$option seconds") },
+                                text = { Text("$option 秒") },
                                 onClick = {
                                     period = option
                                     expandedPeriod = false
@@ -215,12 +215,12 @@ fun EditAccountDialog(
                 },
                 enabled = secret.isNotBlank()
             ) {
-                Text("Save")
+                Text("保存")
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("取消")
             }
         },
         shape = RoundedCornerShape(24.dp),

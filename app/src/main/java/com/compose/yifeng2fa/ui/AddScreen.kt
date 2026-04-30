@@ -40,10 +40,10 @@ fun AddScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Account") },
+                title = { Text("添加账户") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "返回")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -63,7 +63,7 @@ fun AddScreen(
         ) {
             // Form Section
             Text(
-                text = "Account Information",
+                text = "账户信息",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -72,7 +72,7 @@ fun AddScreen(
             OutlinedTextField(
                 value = issuer,
                 onValueChange = { issuer = it },
-                label = { Text("Issuer (e.g. Google)") },
+                label = { Text("服务商 (例如 Google)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -84,7 +84,7 @@ fun AddScreen(
             OutlinedTextField(
                 value = accountName,
                 onValueChange = { accountName = it },
-                label = { Text("Account Name / Email") },
+                label = { Text("账户名称 / 邮箱") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -96,7 +96,7 @@ fun AddScreen(
             OutlinedTextField(
                 value = secret,
                 onValueChange = { secret = it },
-                label = { Text("Secret Key *") },
+                label = { Text("密钥 *") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -104,13 +104,13 @@ fun AddScreen(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                 ),
-                supportingText = { Text("Enter the secret key provided by the service") }
+                supportingText = { Text("输入服务商提供的密钥") }
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Settings",
+                text = "设置",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -126,7 +126,7 @@ fun AddScreen(
                     value = algorithm,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Algorithm") },
+                    label = { Text("算法") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAlgorithm) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -164,7 +164,7 @@ fun AddScreen(
                     value = digits,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Digits") },
+                    label = { Text("位数") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDigits) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -199,10 +199,10 @@ fun AddScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
-                    value = "$period seconds",
+                    value = "$period 秒",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Period") },
+                    label = { Text("周期") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPeriod) },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -220,7 +220,7 @@ fun AddScreen(
                 ) {
                     periodOptions.forEach { option ->
                         DropdownMenuItem(
-                            text = { Text("$option seconds") },
+                            text = { Text("$option 秒") },
                             onClick = {
                                 period = option
                                 expandedPeriod = false
@@ -258,7 +258,7 @@ fun AddScreen(
             ) {
                 Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Account", style = MaterialTheme.typography.labelLarge)
+                Text("保存账户", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

@@ -90,7 +90,7 @@ fun HomeScreen(
 
     if (showExportPasswordDialog) {
         PasswordDialog(
-            title = "Export Password",
+            title = "导出密码",
             onConfirm = { password ->
                 showExportPasswordDialog = false
                 coroutineScope.launch {
@@ -102,10 +102,10 @@ fun HomeScreen(
                                 outputStream.write(encrypted.toByteArray())
                             }
                         }
-                        Toast.makeText(context, "Export successful", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "导出成功", Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Toast.makeText(context, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "导出失败: ${e.message}", Toast.LENGTH_LONG).show()
                     }
                 }
             },
@@ -115,7 +115,7 @@ fun HomeScreen(
 
     if (showImportPasswordDialog) {
         PasswordDialog(
-            title = "Import Password",
+            title = "导入密码",
             onConfirm = { password ->
                 showImportPasswordDialog = false
                 coroutineScope.launch {
@@ -130,10 +130,10 @@ fun HomeScreen(
                         val type = object : TypeToken<List<TotpEntity>>() {}.type
                         val importedAccounts: List<TotpEntity> = Gson().fromJson(decryptedJson, type)
                         viewModel.importAccounts(importedAccounts)
-                        Toast.makeText(context, "Import successful", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "导入成功", Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Toast.makeText(context, "Import failed: Check password or file", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "导入失败: 请检查密码或文件", Toast.LENGTH_LONG).show()
                     }
                 }
             },
@@ -167,11 +167,11 @@ fun HomeScreen(
                     IconButton(onClick = { viewModel.toggleShowCodes() }) {
                         Icon(
                             if (showCodes) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                            contentDescription = "Toggle Visibility"
+                            contentDescription = "切换可见性"
                         )
                     }
                     IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                        Icon(Icons.Default.MoreVert, contentDescription = "菜单")
                     }
                     DropdownMenu(
                         expanded = showMenu,
@@ -180,7 +180,7 @@ fun HomeScreen(
                         shape = RoundedCornerShape(16.dp)
                     ) {
                         DropdownMenuItem(
-                            text = { Text("Sort by Date (Asc)") },
+                            text = { Text("按日期排序 (升序)") },
                             onClick = {
                                 viewModel.setSortOrder(SortOrder.DATE_ASC)
                                 showMenu = false
@@ -194,7 +194,7 @@ fun HomeScreen(
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Sort by Date (Desc)") },
+                            text = { Text("按日期排序 (降序)") },
                             onClick = {
                                 viewModel.setSortOrder(SortOrder.DATE_DESC)
                                 showMenu = false
@@ -208,7 +208,7 @@ fun HomeScreen(
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Sort by Issuer") },
+                            text = { Text("按服务商排序") },
                             onClick = {
                                 viewModel.setSortOrder(SortOrder.ISSUER_ASC)
                                 showMenu = false
@@ -223,14 +223,14 @@ fun HomeScreen(
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text("Export Data") },
+                            text = { Text("导出数据") },
                             onClick = {
                                 exportLauncher.launch("2fa_backup.json")
                                 showMenu = false
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Import Data") },
+                            text = { Text("导入数据") },
                             onClick = {
                                 importLauncher.launch(arrayOf("*/*"))
                                 showMenu = false
@@ -238,7 +238,7 @@ fun HomeScreen(
                         )
                         HorizontalDivider()
                         DropdownMenuItem(
-                            text = { Text(if (fullBorderCountdown) "Countdown: Full Border" else "Countdown: Bottom Bar") },
+                            text = { Text(if (fullBorderCountdown) "倒计时: 全边框" else "倒计时: 底部进度条") },
                             onClick = {
                                 viewModel.toggleFullBorderCountdown()
                                 showMenu = false
@@ -257,7 +257,7 @@ fun HomeScreen(
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     shape = CircleShape
                 ) {
-                    Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan QR")
+                    Icon(Icons.Default.QrCodeScanner, contentDescription = "扫描二维码")
                 }
                 FloatingActionButton(
                     onClick = onNavigateToAdd,
@@ -265,7 +265,7 @@ fun HomeScreen(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     shape = CircleShape
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Account")
+                    Icon(Icons.Default.Add, contentDescription = "添加账户")
                 }
             }
         },
@@ -274,8 +274,8 @@ fun HomeScreen(
         if (accounts.isEmpty()) {
             EmptyState(
                 icon = Icons.Default.Security,
-                title = "No Accounts Yet",
-                message = "Add your first 2FA account by scanning a QR code or entering details manually.",
+                title = "暂无账户",
+                message = "通过扫描二维码或手动输入来添加您的第一个 2FA 账户。",
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
@@ -310,8 +310,8 @@ fun HomeScreen(
                                 )
 
                                 val promptInfo = androidx.biometric.BiometricPrompt.PromptInfo.Builder()
-                                    .setTitle("Verify Identity")
-                                    .setSubtitle("Authenticate to view account details")
+                                    .setTitle("验证身份")
+                                    .setSubtitle("验证以查看账户详情")
                                     .setAllowedAuthenticators(androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG or androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL)
                                     .build()
 
@@ -411,8 +411,8 @@ fun TotpCard(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Delete Account?") },
-            text = { Text("This will permanently remove \"${account.issuer.ifEmpty { "Unknown" }}\" from your authenticator.") },
+            title = { Text("删除账户?") },
+            text = { Text("这将从验证器中永久删除 \"${account.issuer.ifEmpty { "未知" }}\"") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -420,12 +420,12 @@ fun TotpCard(
                         onDelete()
                     }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text("删除", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Cancel")
+                    Text("取消")
                 }
             }
         )
@@ -437,7 +437,7 @@ fun TotpCard(
         else -> MaterialTheme.colorScheme.primary
     }
 
-    val issuerName = account.issuer.ifEmpty { "Unknown" }
+    val issuerName = account.issuer.ifEmpty { "未知" }
     val color = issuerColor(issuerName)
 
     val displayCode = if (showCode) {
@@ -585,7 +585,7 @@ fun TotpCard(
                 ) {
                     Icon(
                         Icons.Default.Delete,
-                        contentDescription = "Delete",
+                        contentDescription = "删除",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         modifier = Modifier.size(20.dp)
                     )
