@@ -1,14 +1,24 @@
 package com.compose.yifeng2fa.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.compose.yifeng2fa.utils.TotpUtils
 import com.compose.yifeng2fa.viewmodel.TotpViewModel
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,29 +32,99 @@ fun ScanResultScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Scanned Account") },
+                title = { Text("Scan Result") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (totpData != null) {
-                Text("Issuer: ${totpData.issuer}", style = MaterialTheme.typography.titleMedium)
-                Text("Account: ${totpData.accountName}", style = MaterialTheme.typography.titleMedium)
-                Text("Secret: ${totpData.secret}", style = MaterialTheme.typography.titleMedium)
-                
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Success Icon
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCodeScanner,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "QR Code Scanned",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Review the account details below and save it.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Details Card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
+                    ) {
+                        DetailRow(label = "Issuer", value = totpData.issuer.ifEmpty { "Not specified" })
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        DetailRow(label = "Account", value = totpData.accountName.ifEmpty { "Not specified" })
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        DetailRow(label = "Secret", value = totpData.secret.take(8) + "...")
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            DetailRow(
+                                label = "Algorithm",
+                                value = totpData.algorithm,
+                                modifier = Modifier.weight(1f)
+                            )
+                            DetailRow(
+                                label = "Digits",
+                                value = totpData.digits.toString(),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.weight(1f))
-                
+
                 Button(
                     onClick = {
                         viewModel.addAccount(
@@ -57,16 +137,77 @@ fun ScanResultScreen(
                         )
                         onBack()
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    contentPadding = PaddingValues(vertical = 14.dp)
                 ) {
-                    Text("Save Account")
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Save Account", style = MaterialTheme.typography.labelLarge)
                 }
             } else {
-                Text("Invalid QR Code", color = MaterialTheme.colorScheme.error)
-                Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.weight(1f))
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.errorContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCodeScanner,
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp),
+                        tint = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Invalid QR Code",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    "The scanned QR code does not contain a valid otpauth URI.",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = onBack,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
                     Text("Go Back")
                 }
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
+    }
+}
+
+@Composable
+private fun DetailRow(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+            color = MaterialTheme.colorScheme.onSurface
+        )
     }
 }

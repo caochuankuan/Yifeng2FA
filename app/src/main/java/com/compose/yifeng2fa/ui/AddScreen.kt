@@ -1,10 +1,15 @@
 package com.compose.yifeng2fa.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.compose.yifeng2fa.viewmodel.TotpViewModel
@@ -30,45 +35,85 @@ fun AddScreen(
     var expandedDigits by remember { mutableStateOf(false) }
     var expandedPeriod by remember { mutableStateOf(false) }
 
+    val isValid = secret.isNotBlank()
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Manual Entry") },
+                title = { Text("Add Account") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Form Section
+            Text(
+                text = "Account Information",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+
             OutlinedTextField(
                 value = issuer,
                 onValueChange = { issuer = it },
                 label = { Text("Issuer (e.g. Google)") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                )
             )
             OutlinedTextField(
                 value = accountName,
                 onValueChange = { accountName = it },
-                label = { Text("Account Name") },
+                label = { Text("Account Name / Email") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                )
             )
             OutlinedTextField(
                 value = secret,
                 onValueChange = { secret = it },
-                label = { Text("Secret Key") },
+                label = { Text("Secret Key *") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                ),
+                supportingText = { Text("Enter the secret key provided by the service") }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Settings",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 4.dp)
             )
 
             // Algorithm Dropdown
@@ -85,11 +130,17 @@ fun AddScreen(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAlgorithm) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    )
                 )
                 ExposedDropdownMenu(
                     expanded = expandedAlgorithm,
-                    onDismissRequest = { expandedAlgorithm = false }
+                    onDismissRequest = { expandedAlgorithm = false },
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
                 ) {
                     algorithms.forEach { option ->
                         DropdownMenuItem(
@@ -117,11 +168,17 @@ fun AddScreen(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDigits) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    )
                 )
                 ExposedDropdownMenu(
                     expanded = expandedDigits,
-                    onDismissRequest = { expandedDigits = false }
+                    onDismissRequest = { expandedDigits = false },
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
                 ) {
                     digitsOptions.forEach { option ->
                         DropdownMenuItem(
@@ -149,11 +206,17 @@ fun AddScreen(
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPeriod) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .menuAnchor()
+                        .menuAnchor(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    )
                 )
                 ExposedDropdownMenu(
                     expanded = expandedPeriod,
-                    onDismissRequest = { expandedPeriod = false }
+                    onDismissRequest = { expandedPeriod = false },
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
                 ) {
                     periodOptions.forEach { option ->
                         DropdownMenuItem(
@@ -167,7 +230,8 @@ fun AddScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1f, fill = false))
+            Spacer(modifier = Modifier.height(24.dp))
 
             Button(
                 onClick = {
@@ -184,9 +248,17 @@ fun AddScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = secret.isNotBlank()
+                enabled = isValid,
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                contentPadding = PaddingValues(vertical = 14.dp)
             ) {
-                Text("Save")
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Save Account", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

@@ -1,21 +1,31 @@
 package com.compose.yifeng2fa.ui
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.net.Uri
@@ -31,6 +41,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -124,7 +135,25 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Yifeng 2FA") },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Security,
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            "Yifeng 2FA",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 actions = {
                     IconButton(onClick = { viewModel.toggleShowCodes() }) {
                         Icon(
@@ -137,13 +166,22 @@ fun HomeScreen(
                     }
                     DropdownMenu(
                         expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
+                        onDismissRequest = { showMenu = false },
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         DropdownMenuItem(
                             text = { Text("Sort by Date (Asc)") },
                             onClick = {
                                 viewModel.setSortOrder(SortOrder.DATE_ASC)
                                 showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         )
                         DropdownMenuItem(
@@ -151,6 +189,13 @@ fun HomeScreen(
                             onClick = {
                                 viewModel.setSortOrder(SortOrder.DATE_DESC)
                                 showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         )
                         DropdownMenuItem(
@@ -158,9 +203,16 @@ fun HomeScreen(
                             onClick = {
                                 viewModel.setSortOrder(SortOrder.ISSUER_ASC)
                                 showMenu = false
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
                         )
-                        Divider()
+                        HorizontalDivider()
                         DropdownMenuItem(
                             text = { Text("Export Data") },
                             onClick = {
@@ -183,58 +235,133 @@ fun HomeScreen(
             Column(horizontalAlignment = Alignment.End) {
                 SmallFloatingActionButton(
                     onClick = onNavigateToScan,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 12.dp),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    shape = CircleShape
                 ) {
                     Icon(Icons.Default.QrCodeScanner, contentDescription = "Scan QR")
                 }
-                FloatingActionButton(onClick = onNavigateToAdd) {
+                FloatingActionButton(
+                    onClick = onNavigateToAdd,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = CircleShape
+                ) {
                     Icon(Icons.Default.Add, contentDescription = "Add Account")
                 }
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(accounts, key = { it.id }) { account ->
-                TotpCard(
-                    account = account,
-                    showCode = showCodes,
-                    onDelete = { viewModel.deleteAccount(account) },
-                    onClick = {
-                        val activity = context as? androidx.fragment.app.FragmentActivity
-                        if (activity != null) {
-                            val executor = androidx.core.content.ContextCompat.getMainExecutor(context)
-                            val biometricPrompt = androidx.biometric.BiometricPrompt(
-                                activity,
-                                executor,
-                                object : androidx.biometric.BiometricPrompt.AuthenticationCallback() {
-                                    override fun onAuthenticationSucceeded(result: androidx.biometric.BiometricPrompt.AuthenticationResult) {
-                                        super.onAuthenticationSucceeded(result)
-                                        onNavigateToDetail(account.id)
+        if (accounts.isEmpty()) {
+            EmptyState(
+                icon = Icons.Default.Security,
+                title = "No Accounts Yet",
+                message = "Add your first 2FA account by scanning a QR code or entering details manually.",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(accounts, key = { it.id }) { account ->
+                    TotpCard(
+                        account = account,
+                        showCode = showCodes,
+                        onDelete = { viewModel.deleteAccount(account) },
+                        onClick = {
+                            val activity = context as? androidx.fragment.app.FragmentActivity
+                            if (activity != null) {
+                                val executor = androidx.core.content.ContextCompat.getMainExecutor(context)
+                                val biometricPrompt = androidx.biometric.BiometricPrompt(
+                                    activity,
+                                    executor,
+                                    object : androidx.biometric.BiometricPrompt.AuthenticationCallback() {
+                                        override fun onAuthenticationSucceeded(result: androidx.biometric.BiometricPrompt.AuthenticationResult) {
+                                            super.onAuthenticationSucceeded(result)
+                                            onNavigateToDetail(account.id)
+                                        }
                                     }
-                                }
-                            )
+                                )
 
-                            val promptInfo = androidx.biometric.BiometricPrompt.PromptInfo.Builder()
-                                .setTitle("Verify Identity")
-                                .setSubtitle("Authenticate to view account details")
-                                .setAllowedAuthenticators(androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG or androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                                .build()
+                                val promptInfo = androidx.biometric.BiometricPrompt.PromptInfo.Builder()
+                                    .setTitle("Verify Identity")
+                                    .setSubtitle("Authenticate to view account details")
+                                    .setAllowedAuthenticators(androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG or androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                                    .build()
 
-                            biometricPrompt.authenticate(promptInfo)
-                        } else {
-                            onNavigateToDetail(account.id)
+                                biometricPrompt.authenticate(promptInfo)
+                            } else {
+                                onNavigateToDetail(account.id)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+fun EmptyState(
+    icon: ImageVector,
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        )
+    }
+}
+
+private fun issuerColor(issuer: String): Color {
+    val colors = listOf(
+        Color(0xFF006A6A), Color(0xFF4A6363), Color(0xFF4D6077),
+        Color(0xFF6B4EA2), Color(0xFF8B4F74), Color(0xFF7D5648),
+        Color(0xFF5D6E42), Color(0xFF00639B), Color(0xFF7D5260),
+        Color(0xFF4A635D), Color(0xFF6A4A63), Color(0xFF635D4A)
+    )
+    val hash = abs(issuer.hashCode())
+    return colors[hash % colors.size]
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -247,6 +374,7 @@ fun TotpCard(
 ) {
     var currentCode by remember { mutableStateOf("") }
     var progress by remember { mutableStateOf(0f) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(account.secret, account.algorithm, account.digits, account.period) {
         while (true) {
@@ -261,59 +389,144 @@ fun TotpCard(
         }
     }
 
+    if (showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete Account?") },
+            text = { Text("This will permanently remove \"${account.issuer.ifEmpty { "Unknown" }}\" from your authenticator.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirm = false
+                        onDelete()
+                    }
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    val progressColor = when {
+        progress < 0.1f -> MaterialTheme.colorScheme.error
+        progress < 0.3f -> Color(0xFFE6A817)
+        else -> MaterialTheme.colorScheme.primary
+    }
+
+    val issuerName = account.issuer.ifEmpty { "Unknown" }
+    val color = issuerColor(issuerName)
+
+    val displayCode = if (showCode) {
+        when (currentCode.length) {
+            6 -> "${currentCode.substring(0, 3)} ${currentCode.substring(3)}"
+            8 -> "${currentCode.substring(0, 4)} ${currentCode.substring(4)}"
+            else -> currentCode
+        }
+    } else {
+        if (currentCode.length == 8) "•••• ••••" else "••• •••"
+    }
+
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Top section: info + delete
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Issuer Avatar
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(color.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = issuerName.take(1).uppercase(),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = color
+                        )
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = issuerName,
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = account.accountName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+                }
+
+                IconButton(
+                    onClick = { showDeleteConfirm = true },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            // TOTP Code
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
                 Text(
-                    text = account.issuer.ifEmpty { "Unknown Issuer" },
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(
-                    text = account.accountName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = if (showCode) {
-                        when (currentCode.length) {
-                            6 -> "${currentCode.substring(0, 3)} ${currentCode.substring(3)}"
-                            8 -> "${currentCode.substring(0, 4)} ${currentCode.substring(4)}"
-                            else -> currentCode
-                        }
-                    } else {
-                        if (currentCode.length == 8) "•••• ••••" else "••• •••"
-                    },
-                    style = MaterialTheme.typography.headlineMedium.copy(
+                    text = displayCode,
+                    style = MaterialTheme.typography.displaySmall.copy(
                         fontWeight = FontWeight.Bold,
-                        letterSpacing = 2.sp
+                        letterSpacing = 3.sp,
+                        fontSize = 36.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace
                     ),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-            
-            Box(contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.size(36.dp),
-                    color = if (progress < 0.15f) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                )
-            }
-            
-            IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
-            }
+
+            // Linear progress bar at bottom
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp),
+                color = progressColor,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                drawStopIndicator = {}
+            )
         }
     }
 }
