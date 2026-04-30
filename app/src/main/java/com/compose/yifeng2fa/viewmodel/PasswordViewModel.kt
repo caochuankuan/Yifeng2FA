@@ -8,14 +8,19 @@ import com.compose.yifeng2fa.data.AppDatabase
 import com.compose.yifeng2fa.data.PasswordEntity
 import com.compose.yifeng2fa.data.StrongPasswordHistoryEntity
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class PasswordViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).passwordDao()
     private val historyDao = AppDatabase.getDatabase(application).strongPasswordHistoryDao()
     private val prefs = application.getSharedPreferences("yifeng2fa_settings", Context.MODE_PRIVATE)
+
+    private val _allAccounts = MutableStateFlow<List<PasswordEntity>>(emptyList())
 
     private val _accounts = MutableStateFlow<List<PasswordEntity>>(emptyList())
     val accounts: StateFlow<List<PasswordEntity>> = _accounts
@@ -29,16 +34,24 @@ class PasswordViewModel(application: Application) : AndroidViewModel(application
     private val _strongPasswordHistory = MutableStateFlow<List<StrongPasswordHistoryEntity>>(emptyList())
     val strongPasswordHistory: StateFlow<List<StrongPasswordHistoryEntity>> = _strongPasswordHistory
 
+    val allAccountsCount: StateFlow<Int> = _allAccounts.map { it.size }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
     init {
+        viewModelScope.launch {
+            dao.getAll().collectLatest { list ->
+                _allAccounts.value = list
+            }
+        }
         viewModelScope.launch {
             _searchQuery.collectLatest { query ->
                 if (query.isBlank()) {
-                    dao.getAll().collectLatest {
-                        _accounts.value = it
+                    _allAccounts.collectLatest { list ->
+                        _accounts.value = list
                     }
                 } else {
-                    dao.search(query).collectLatest {
-                        _accounts.value = it
+                    dao.search(query).collectLatest { list ->
+                        _accounts.value = list
                     }
                 }
             }

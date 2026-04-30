@@ -87,6 +87,7 @@ fun PasswordScreen(
     onNavigateToDetail: (Long) -> Unit
 ) {
     val accounts by viewModel.accounts.collectAsState()
+    val allAccountsCount by viewModel.allAccountsCount.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val showPassword by viewModel.showPassword.collectAsState()
     var isMultiSelectMode by remember { mutableStateOf(false) }
@@ -204,12 +205,6 @@ fun PasswordScreen(
                 TopAppBar(
                     title = { Text("密码管理") },
                     actions = {
-                        var showSearch by remember { mutableStateOf(false) }
-                        if (accounts.size > 3) {
-                            IconButton(onClick = { showSearch = !showSearch }) {
-                                Icon(Icons.Default.Search, contentDescription = "搜索")
-                            }
-                        }
                         IconButton(onClick = { showMenu = true }) {
                             Icon(Icons.Default.MoreVert, contentDescription = "菜单")
                         }
@@ -317,7 +312,7 @@ fun PasswordScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (!isMultiSelectMode && accounts.size > 3) {
+            if (!isMultiSelectMode && allAccountsCount > 3) {
                 TextField(
                     value = searchQuery,
                     onValueChange = { viewModel.setSearchQuery(it) },
@@ -332,7 +327,7 @@ fun PasswordScreen(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)
                 )
             }
 
