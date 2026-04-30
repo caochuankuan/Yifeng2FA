@@ -1,6 +1,7 @@
 package com.compose.yifeng2fa.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.yifeng2fa.data.AppDatabase
@@ -16,6 +17,7 @@ enum class SortOrder {
 
 class TotpViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).totpDao()
+    private val prefs = application.getSharedPreferences("yifeng2fa_settings", Context.MODE_PRIVATE)
 
     private val _accounts = MutableStateFlow<List<TotpEntity>>(emptyList())
     val accounts: StateFlow<List<TotpEntity>> = _accounts
@@ -23,8 +25,11 @@ class TotpViewModel(application: Application) : AndroidViewModel(application) {
     private val _sortOrder = MutableStateFlow(SortOrder.DATE_ASC)
     val sortOrder: StateFlow<SortOrder> = _sortOrder
 
-    private val _showCodes = MutableStateFlow(true)
+    private val _showCodes = MutableStateFlow(prefs.getBoolean("show_codes", true))
     val showCodes: StateFlow<Boolean> = _showCodes
+
+    private val _fullBorderCountdown = MutableStateFlow(prefs.getBoolean("full_border_countdown", false))
+    val fullBorderCountdown: StateFlow<Boolean> = _fullBorderCountdown
 
     init {
         loadAccounts()
@@ -50,7 +55,15 @@ class TotpViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun toggleShowCodes() {
-        _showCodes.value = !_showCodes.value
+        val newValue = !_showCodes.value
+        _showCodes.value = newValue
+        prefs.edit().putBoolean("show_codes", newValue).apply()
+    }
+
+    fun toggleFullBorderCountdown() {
+        val newValue = !_fullBorderCountdown.value
+        _fullBorderCountdown.value = newValue
+        prefs.edit().putBoolean("full_border_countdown", newValue).apply()
     }
 
     fun getAccountById(id: Long) = dao.getById(id)

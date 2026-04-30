@@ -8,6 +8,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -32,6 +39,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import com.compose.yifeng2fa.data.TotpEntity
 import com.compose.yifeng2fa.utils.CryptoUtils
 import com.compose.yifeng2fa.utils.TotpUtils
@@ -53,6 +61,7 @@ fun HomeScreen(
 ) {
     val accounts by viewModel.accounts.collectAsState()
     val showCodes by viewModel.showCodes.collectAsState()
+    val fullBorderCountdown by viewModel.fullBorderCountdown.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
     var showExportPasswordDialog by remember { mutableStateOf(false) }
     var showImportPasswordDialog by remember { mutableStateOf(false) }
@@ -227,6 +236,14 @@ fun HomeScreen(
                                 showMenu = false
                             }
                         )
+                        HorizontalDivider()
+                        DropdownMenuItem(
+                            text = { Text(if (fullBorderCountdown) "Countdown: Full Border" else "Countdown: Bottom Bar") },
+                            onClick = {
+                                viewModel.toggleFullBorderCountdown()
+                                showMenu = false
+                            }
+                        )
                     }
                 }
             )
@@ -275,6 +292,7 @@ fun HomeScreen(
                     TotpCard(
                         account = account,
                         showCode = showCodes,
+                        fullBorderCountdown = fullBorderCountdown,
                         onDelete = { viewModel.deleteAccount(account) },
                         onClick = {
                             val activity = context as? androidx.fragment.app.FragmentActivity
@@ -369,6 +387,7 @@ private fun issuerColor(issuer: String): Color {
 fun TotpCard(
     account: TotpEntity,
     showCode: Boolean,
+    fullBorderCountdown: Boolean = false,
     onDelete: () -> Unit,
     onClick: () -> Unit
 ) {
@@ -433,16 +452,91 @@ fun TotpCard(
 
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(
+                if (fullBorderCountdown) {
+                    Modifier.drawWithContent {
+                        drawContent()
+                        val strokeWidth = 4.dp.toPx()
+                        val cornerRadius = 20.dp.toPx()
+                        val rect = size.toRect()
+                        val perimeter = 2 * (rect.width + rect.height)
+                        val drawLength = perimeter * progress
+
+                        drawRoundRect(
+                            color = progressColor.copy(alpha = 0.15f),
+                            size = Size(rect.width, rect.height),
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
+                            style = Stroke(width = strokeWidth)
+                        )
+
+                        val path = androidx.compose.ui.graphics.Path().apply {
+                            moveTo(cornerRadius, 0f)
+                            lineTo(rect.width - cornerRadius, 0f)
+                            arcTo(
+                                rect = androidx.compose.ui.geometry.Rect(
+                                    rect.width - 2 * cornerRadius, 0f, rect.width, 2 * cornerRadius
+                                ),
+                                startAngleDegrees = -90f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false
+                            )
+                            lineTo(rect.width, rect.height - cornerRadius)
+                            arcTo(
+                                rect = androidx.compose.ui.geometry.Rect(
+                                    rect.width - 2 * cornerRadius, rect.height - 2 * cornerRadius,
+                                    rect.width, rect.height
+                                ),
+                                startAngleDegrees = 0f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false
+                            )
+                            lineTo(cornerRadius, rect.height)
+                            arcTo(
+                                rect = androidx.compose.ui.geometry.Rect(
+                                    0f, rect.height - 2 * cornerRadius,
+                                    2 * cornerRadius, rect.height
+                                ),
+                                startAngleDegrees = 90f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false
+                            )
+                            lineTo(0f, cornerRadius)
+                            arcTo(
+                                rect = androidx.compose.ui.geometry.Rect(
+                                    0f, 0f, 2 * cornerRadius, 2 * cornerRadius
+                                ),
+                                startAngleDegrees = 180f,
+                                sweepAngleDegrees = 90f,
+                                forceMoveTo = false
+                            )
+                            close()
+                        }
+
+                        val measure = androidx.compose.ui.graphics.PathMeasure().apply { setPath(path, false) }
+                        val animatedPath = androidx.compose.ui.graphics.Path()
+                        measure.getSegment(0f, drawLength.coerceAtMost(perimeter), animatedPath, true)
+
+                        drawPath(
+                            path = animatedPath,
+                            color = progressColor,
+                            style = Stroke(width = strokeWidth)
+                        )
+                    }
+                } else {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                }
+            ),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-        )
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             // Top section: info + delete
@@ -517,16 +611,18 @@ fun TotpCard(
                 )
             }
 
-            // Linear progress bar at bottom
-            LinearProgressIndicator(
-                progress = { progress },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp),
-                color = progressColor,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                drawStopIndicator = {}
-            )
+            // Bottom progress bar (hidden when full border mode)
+            if (!fullBorderCountdown) {
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp),
+                    color = progressColor,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    drawStopIndicator = {}
+                )
+            }
         }
     }
 }
