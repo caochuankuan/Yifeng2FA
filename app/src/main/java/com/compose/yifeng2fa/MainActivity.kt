@@ -28,12 +28,16 @@ import com.compose.yifeng2fa.ui.HomeScreen
 import com.compose.yifeng2fa.ui.ScanScreen
 import com.compose.yifeng2fa.ui.ScanResultScreen
 import com.compose.yifeng2fa.ui.ItemDetailScreen
-import com.compose.yifeng2fa.ui.ToolsPlaceholderScreen
+import com.compose.yifeng2fa.ui.PasswordScreen
+import com.compose.yifeng2fa.ui.AddPasswordScreen
+import com.compose.yifeng2fa.ui.PasswordDetailScreen
+import com.compose.yifeng2fa.ui.EditPasswordScreen
 import com.compose.yifeng2fa.ui.SettingsPlaceholderScreen
 import com.compose.yifeng2fa.ui.Screen
 import com.compose.yifeng2fa.ui.bottomNavItems
 import com.compose.yifeng2fa.ui.theme.Yifeng2FATheme
 import com.compose.yifeng2fa.viewmodel.TotpViewModel
+import com.compose.yifeng2fa.viewmodel.PasswordViewModel
 
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +51,7 @@ class MainActivity : FragmentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val viewModel: TotpViewModel = viewModel()
+                    val passwordViewModel: PasswordViewModel = viewModel()
 
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
@@ -100,8 +105,44 @@ class MainActivity : FragmentActivity() {
                                 )
                             }
 
-                            composable(Screen.Tools.route) {
-                                ToolsPlaceholderScreen()
+                            composable(Screen.Passwords.route) {
+                                PasswordScreen(
+                                    viewModel = passwordViewModel,
+                                    onNavigateToAdd = { navController.navigate(Screen.AddPassword.route) },
+                                    onNavigateToDetail = { id -> navController.navigate(Screen.PasswordDetail.createRoute(id)) }
+                                )
+                            }
+
+                            composable(Screen.AddPassword.route) {
+                                AddPasswordScreen(
+                                    viewModel = passwordViewModel,
+                                    onBack = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable(
+                                route = Screen.PasswordDetail.route,
+                                arguments = listOf(navArgument("id") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getLong("id") ?: 0L
+                                PasswordDetailScreen(
+                                    id = id,
+                                    viewModel = passwordViewModel,
+                                    onBack = { navController.popBackStack() },
+                                    onNavigateToEdit = { editId -> navController.navigate(Screen.EditPassword.createRoute(editId)) }
+                                )
+                            }
+
+                            composable(
+                                route = Screen.EditPassword.route,
+                                arguments = listOf(navArgument("id") { type = NavType.LongType })
+                            ) { backStackEntry ->
+                                val id = backStackEntry.arguments?.getLong("id") ?: 0L
+                                EditPasswordScreen(
+                                    id = id,
+                                    viewModel = passwordViewModel,
+                                    onBack = { navController.popBackStack() }
+                                )
                             }
 
                             composable(Screen.Settings.route) {
